@@ -1,8 +1,8 @@
 const express = require("express");
-const mongoose = require("mongoose");
-const connectDB = require("./db");
+const connectDB = require("./config/dbConnect");
 const cors = require("cors");
-const CallRecord = require("./models/callRecord.js");
+const nsRouter = require("./routes/nsRoute");
+
 
 require("dotenv").config();
 
@@ -20,48 +20,7 @@ app.use(cors());
 const client = connectDB();
 console.log(client, "ok");
 //-------------------------------------end Points-----------------------
-app.get("/", async (req, res) => {
-  res.send("OK");
-});
-
-
-app.get("/callrecord", (req, res) => {
-  CallRecord.find({})
-    .then((resp) => {
-      // console.log(resp);
-      res.status(200).send(resp);
-    })
-    .catch((err) => {
-      res.status(500).json({ error: true, message: "Internal Server Error" });
-    });
-});
-
-app.post("/findRecord", async (req, res) => {
-  // console.log(req.body.query)
-  try {
-    const result = await CallRecord
-      .where("callDateFrom")
-      .eq(req.body.query.callDateFrom)
-      .where("callDateTo")
-      .eq(req.body.query.callDateTo)
-      .where("phoneNumber")
-      .eq(req.body.query.phoneNumber)
-      .where("campaignId")
-      .eq(req.body.query.campaignId)
-      .where("agentId")
-      .eq(req.body.query.agentId)
-      .where("volunteerNumber")
-      .eq(req.body.query.volunteerNumber)
-
-    res.status(200).send(result);
-  } catch (err) {
-    console.log(err);
-    if (res.status(500))
-      res.status(500).json({ error: true, message: "Internal Server Error" });
-    else if (res.status(404))
-      res.status(500).json({ error: true, message: "404 error ----" });
-  }
-});
+app.use("/api", nsRouter);
 
 
 
